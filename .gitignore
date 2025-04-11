@@ -1,2 +1,5 @@
 venv/
 .~lock*
+*.csv
+datasets/
+data-imoport-setup/
