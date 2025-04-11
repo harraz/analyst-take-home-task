@@ -101,19 +101,23 @@ def main():
         )
     )
 
+    enc_df.show(5)
+
     # filter patients not null and BIRTHDATE > current date
     # date format 2018-12-20 22:57:39
-    patient_df = spark_dfs['patients'].filter((spark_dfs['patients'].BIRTHDATE.isNotNull()) &
-        (
-            Func.to_timestamp(spark_dfs['patients'].DEATHDATE, "yyyy-MM-dd HH:mm:ss") < Func.current_timestamp()
-        ) &
-        (
-            Func.floor(
-                Func.datediff(
-                    Func.current_date(),
-                    Func.to_date(spark_dfs['patients'].BIRTHDATE, "yyyy-MM-dd HH:mm:ss")) / 365
-            ).between(18, 35)
-        )
+    patient_df = spark_dfs['patients'].filter((spark_dfs['patients'].BIRTHDATE.isNotNull()) 
+        # &
+        # (
+        #     Func.to_timestamp(spark_dfs['patients'].DEATHDATE, "yyyy-MM-dd HH:mm:ss") < Func.current_timestamp()
+        # )      
+        # &
+        # (
+        #     Func.floor(
+        #         Func.datediff(
+        #             Func.current_date(),
+        #             Func.to_date(spark_dfs['patients'].BIRTHDATE, "yyyy-MM-dd HH:mm:ss")) / 365
+        #     ).between(18, 35)
+        # )
     )
 
     patient_df.show(5)
