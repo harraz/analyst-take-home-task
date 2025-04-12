@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #ccffcc
+skinparam handwritten true
+
+start
+
+:Load datasets: 
+- Patients
+- Encounters
+- Medications
+- Allergies
+- Procedures;
+
+:Read and reference the Data Dictionary;
+
+:Filter Encounters for Drug Overdose \nAND encounters after July 15, 1999;
+:Calculate patient's age at time of encounter;
+if (Age between 18 and 35?) then (yes)
+  :Include encounter in study cohort;
+else (no)
+  :Exclude encounter;
+endif
+
+:Join datasets to build the complete cohort\n(using descriptive table aliases);
+:Compute additional fields:
+  - DEATH_AT_VISIT_IND (based on death date during encounter)
+  - COUNT_CURRENT_MEDS (active medications at start of encounter)
+  - CURRENT_OPIOID_IND (flag if active med is on opioids list)
+  
+:Calculate Readmission Indicators using window functions:
+  - Compute next_enc_START via lead() over patient partition ordered by encounter dates;
+  - Calculate diff_days (difference in days between encounters);
+  - Set READMISSION_90_DAY_IND flag (1 if next encounter within 90 days, else 0);
+  - Set READMISSION_30_DAY_IND flag (1 if next encounter within 30 days, else 0);
+  - Update next_enc_START to "N/A" if diff_days is 0;
+  - Rename next_enc_START to FIRST_READMISSION_DATE;
+
+:Export the final cohort dataset to CSV;
+
+stop
+@enduml

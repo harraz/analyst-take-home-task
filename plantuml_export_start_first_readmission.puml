@@ -1,0 +1,34 @@
+@startuml
+' Set a green background
+skinparam backgroundColor #ccffcc
+
+start
+
+:Load cohort_df dataset;
+:Define patient_window as Window.partitionBy("pat_Id")
+ordered by casting enc_STOP to timestamp;
+
+:Compute next_enc_START \nusing lead(enc_START) over patient_window;
+
+:Calculate diff_days = datediff(next_enc_START, enc_START);
+
+if (diff_days is NOT null \nand diff_days != 0 \nand diff_days <= 90?) then (Yes)
+  :Set READMISSION_90_DAY_IND = 1;
+else (No)
+  :Set READMISSION_90_DAY_IND = 0;
+endif
+
+if (diff_days is NOT null \nand diff_days != 0 \nand diff_days <= 30?) then (Yes)
+  :Set READMISSION_30_DAY_IND = 1;
+else (No)
+  :Set READMISSION_30_DAY_IND = 0;
+endif
+
+:Update next_enc_START:\n if diff_days is not positive or outside 90-day, \nset value to "N/A";
+
+:Rename next_enc_START to FIRST_READMISSION_DATE;
+
+:Display the final output (df_with_indicator);
+
+stop
+@enduml
