@@ -64,3 +64,23 @@ Upon completion, please email the following to [DataRecruiting@email.chop.edu](m
 
 Good luck!
 
+# Implementation Details
+
+**Summary of the PySpark Notebook:**
+
+The notebook implements a complete workflow to build a study cohort for patients seen for drug overdose and then calculate several key indicators related to those encounters. It begins by ingesting provided datasets (i.e patients, encounters, medications, allergies, and procedures) and uses a provided data dictionary to understand field definitions. The cohort is assembled by applying inclusion criteria: only encounters identified as drug overdose events that occurred after July 15, 1999, are included, and only patients aged between 18 and 35 at the time of the encounter are retained.
+
+Following cohort assembly, the notebook creates additional derived fields using PySpark’s DataFrame API and window functions. For example, it calculates:
+
+- **DEATH_AT_VISIT_IND:** A flag indicating whether the patient died during the overdose encounter versus at another time.
+- **COUNT_CURRENT_MEDS:** The count of active medications at the start of the overdose encounter.
+- **CURRENT_OPIOID_IND:** A binary indicator showing if at least one active medication is on a specified Opioids List.
+- **READMISSION_90_DAY_IND and READMISSION_30_DAY_IND:** Indicators calculated using lead functions and date difference calculations that flag whether the encounter was followed by a subsequent drug overdose readmission within 90 days or 30 days, respectively.
+- **FIRST_READMISSION_DATE:** This field is derived using window functions to extract the date of the first readmission within the 90-day window for each index encounter, with a value set to "N/A" if no such readmission exists.
+
+Finally, the notebook includes steps to filter, inspect, and summarize these computed metrics. The complete workflow is designed with modularity and reusability in mind, culminating in the export of the final cohort data to a CSV file for downstream analysis or reporting. This approach demonstrates reproducible ETL and advanced data manipulation methods using PySpark, consistent with the best practices outlined in the data exercise instructions.
+
+***More implementation details***
+  
+The [notebook](attemp1.ipynb) is a PySpark-based data processing workflow that loads clinical encounter data, performs data cleaning and joining, and then computes readmission indicators using window functions. In particular, it partitions the data by patient or encounter ID, orders records by encounter start or stop timestamps, and uses functions such as `lead()` and `datediff()` to calculate the time difference between successive encounters. Based on these differences, the notebook creates flags—for example, marking whether a readmission occurs within 30 or 90 days. It also demonstrates conditional column updates (for instance, replacing future encounter dates with "N/A" under certain conditions) and renames columns to standardize the output. Finally, the notebook includes steps to filter, display, and inspect intermediate results, effectively illustrating a complete ETL (Extract, Transform, Load) and analysis process for healthcare readmission data using PySpark.
+
